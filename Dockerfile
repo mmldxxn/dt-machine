@@ -7,7 +7,8 @@ ARG ICON="cube"
 
 # ==================================================>
 # ==> Do not change the code below this line
-ARG ARCH=arm32v7
+#this need to care
+ARG ARCH=arm64v8
 ARG DISTRO=daffy
 ARG BASE_TAG=${DISTRO}-${ARCH}
 ARG BASE_IMAGE=dt-ros-commons
@@ -66,39 +67,90 @@ ENV NVIDIA_DRIVER_CAPABILITIES all
 # TODO: Fix requreiment to elimitate old GPU to run the dt-ml image
 #ENV NVIDIA_REQUIRE_ARCH "maxwell pascal volta turing ampere"
 #ENV NVIDIA_REQUIRE_CUDA "cuda>=10.2"
-
 #! VERSIONING CONFIGURATION
 # this is mainly for AMD64 as on Jetson it comes with the image
+#=====================================================
+# previous code
+#ENV CUDA_VERSION 10.2.89
+#ENV CUDA_PKG_VERSION 10-2=$CUDA_VERSION-1
+# new code
 ENV CUDA_VERSION 10.2.89
 ENV CUDA_PKG_VERSION 10-2=$CUDA_VERSION-1
+
 ENV NCCL_VERSION 2.8.4
 ENV CUDNN_VERSION 8.1.1.33
 
-ENV PYTORCH_VERSION 1.7.0
-ENV TORCHVISION_VERSION 0.8.1
+ENV PYTORCH_VERSION 1.7.0+cu102
+ENV TORCHVISION_VERSION 0.8.1+cu102
 
 ENV TENSORRT_VERSION 7.1.3.4
 
 ENV PYCUDA_VERSION 2021.1
+#new code
+# Detect the host CUDA version
+
+
+#=====================================================
+
 
 #! install apt dependencies
 COPY ./dependencies-apt.txt "${REPO_PATH}/"
-RUN dt-apt-install ${REPO_PATH}/dependencies-apt.txt
+#RUN dt-apt-install ${REPO_PATH}/dependencies-apt.txt
+
+#=====================================================
+# previous code
 
 #! install python3 dependencies
 ARG PIP_INDEX_URL="https://pypi.org/simple/"
 ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 RUN echo PIP_INDEX_URL=${PIP_INDEX_URL}
 
-RUN python3 -m pip list
-COPY ./dependencies-py3.* "${REPO_PATH}/"
-RUN python3 -m pip install  -r ${REPO_PATH}/dependencies-py3.txt
+RUN python3 -m pip install --upgrade pip
 
+RUN python3 -m pip list
+
+COPY ./dependencies-py3.* "${REPO_PATH}/"
+#RUN python3 -m pip install  -r ${REPO_PATH}/dependencies-py3.txt
+
+RUN pip3 install cupy
 #! install Zuper dependencies
 ARG PIP_INDEX_URL="https://pypi.org/simple/"
 ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 COPY ./requirements.txt "${REPO_PATH}/"
 RUN python3 -m pip install  -r ${REPO_PATH}/requirements.txt
+
+#RUN pip install --upgrade numpy
+
+#RUN pip uninstall numpy cupy
+#RUN pip install numpy cupy
+
+# new code
+
+# Specify the base image with the desired platform
+#FROM --platform=linux/arm64/v8 base_image
+
+# Install apt dependencies
+#COPY ./dependencies-apt.txt "${REPO_PATH}/"
+#RUN apt-get update && apt-get install -y --no-install-recommends $(cat ${REPO_PATH}/dependencies-apt.txt)
+
+# Install Python 3 dependencies
+#ARG PIP_INDEX_URL="https://pypi.org/simple/"
+#ENV PIP_INDEX_URL=${PIP_INDEX_URL}
+#RUN echo PIP_INDEX_URL=${PIP_INDEX_URL}
+
+#RUN python3 -m pip list
+#COPY ./dependencies-py3.* "${REPO_PATH}/"
+#RUN python3 -m pip install -r ${REPO_PATH}/dependencies-py3.txt
+
+# Install Zuper dependencies
+#COPY ./requirements.txt "${REPO_PATH}/"
+#RUN python3 -m pip install -r ${REPO_PATH}/requirements.txt
+
+
+
+#=====================================================
+
+
 
 #! Symbolic Link:
 RUN ln -s /usr/local/cuda-10.2 /usr/local/cuda
