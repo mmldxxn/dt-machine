@@ -46,6 +46,8 @@ dt-launchfile-init
 # launching app
 dt-exec echo "This is launch script. Update it to launch your application."
 dt-exec python3 -m "try.py"
+#dt-exec python3 -m"nptry.py"
+#dt-exec python3 -m"pt.py"
 dt-exec echo "Run python script finished"
 
 # ----------------------------------------------------------------------------

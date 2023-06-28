@@ -67,6 +67,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES all
 # TODO: Fix requreiment to elimitate old GPU to run the dt-ml image
 #ENV NVIDIA_REQUIRE_ARCH "maxwell pascal volta turing ampere"
 #ENV NVIDIA_REQUIRE_CUDA "cuda>=10.2"
+
 #! VERSIONING CONFIGURATION
 # this is mainly for AMD64 as on Jetson it comes with the image
 #=====================================================
@@ -80,8 +81,8 @@ ENV CUDA_PKG_VERSION 10-2=$CUDA_VERSION-1
 ENV NCCL_VERSION 2.8.4
 ENV CUDNN_VERSION 8.1.1.33
 
-ENV PYTORCH_VERSION 1.7.0+cu102
-ENV TORCHVISION_VERSION 0.8.1+cu102
+ENV PYTORCH_VERSION 1.7.0
+ENV TORCHVISION_VERSION 0.8.1
 
 ENV TENSORRT_VERSION 7.1.3.4
 
@@ -99,7 +100,6 @@ COPY ./dependencies-apt.txt "${REPO_PATH}/"
 
 #=====================================================
 # previous code
-RUN sudo apt-get update
 
 #! install python3 dependencies
 ARG PIP_INDEX_URL="https://pypi.org/simple/"
@@ -111,44 +111,30 @@ RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip list
 
 COPY ./dependencies-py3.* "${REPO_PATH}/"
-#RUN python3 -m pip install  -r ${REPO_PATH}/dependencies-py3.txt
-RUN pip install numpy==1.21
-RUN pip install cupy-cuda102
-#RUN pip3 install torch==1.7.0 torchvision==0.8.1 -f https://download.pytorch.org/whl/cu102/torch_stable.html
-#RUN python3 -m pip install -U setuptools pip
-#RUN pip3 install cupy-cuda102
+RUN python3 -m pip install  -r ${REPO_PATH}/dependencies-py3.txt
+
 #! install Zuper dependencies
-ARG PIP_INDEX_URL="https://pypi.org/simple/"
-ENV PIP_INDEX_URL=${PIP_INDEX_URL}
-COPY ./requirements.txt "${REPO_PATH}/"
-RUN python3 -m pip install  -r ${REPO_PATH}/requirements.txt
-
-#RUN pip install --upgrade numpy
-
-#RUN pip uninstall numpy cupy
-#RUN pip install numpy cupy
-
-#new code
+#ARG PIP_INDEX_URL="https://pypi.org/simple/"
+#ENV PIP_INDEX_URL=${PIP_INDEX_URL}
+#COPY ./requirements.txt "${REPO_PATH}/"
+#RUN python3 -m pip install  -r ${REPO_PATH}/requirements.txt
+# new code
 
 # Specify the base image with the desired platform
-#FROM --platform=linux/arm64/v8 base_image
+#ROM --platform=linux/arm64/v8 base_image
 
 # Install apt dependencies
 #COPY ./dependencies-apt.txt "${REPO_PATH}/"
 #RUN apt-get update && apt-get install -y --no-install-recommends $(cat ${REPO_PATH}/dependencies-apt.txt)
 
-# Install Python 3 dependencies
-#ARG PIP_INDEX_URL="https://pypi.org/simple/"
-#ENV PIP_INDEX_URL=${PIP_INDEX_URL}
-#RUN echo PIP_INDEX_URL=${PIP_INDEX_URL}
 
 #RUN python3 -m pip list
 #COPY ./dependencies-py3.* "${REPO_PATH}/"
 #RUN python3 -m pip install -r ${REPO_PATH}/dependencies-py3.txt
 
 # Install Zuper dependencies
-#COPY ./requirements.txt "${REPO_PATH}/"
-#RUN python3 -m pip install -r ${REPO_PATH}/requirements.txt
+COPY ./requirements.txt "${REPO_PATH}/"
+RUN python3 -m pip install -r ${REPO_PATH}/requirements.txt
 
 
 
